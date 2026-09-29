@@ -2,15 +2,16 @@
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 void main() {
     Scanner scanner = new Scanner(System.in);
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "HH:mm:ss");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     LocalTime alarmTime;
+    String filePath = "retro-alarm.wav";
 
-    while (true){
+    while (true) {
         try {
             System.out.println("Enter an alarm time (HH:mm:ss) ");
             String inputTime = scanner.nextLine();
-            alarmTime = LocalTime.parse(inputTime,formatter);
+            alarmTime = LocalTime.parse(inputTime, formatter);
             System.out.println(" Alarm set for  " + alarmTime);
             break;
         } catch (DateTimeParseException e) {
@@ -18,10 +19,7 @@ void main() {
         }
     }
 
-AlarmClock alarmClock = new AlarmClock(alarmTime);
-Thread alarmThread = new Thread(alarmClock);
-alarmThread.start();
-
-    scanner.close();
-
+    AlarmClock alarmClock = new AlarmClock(alarmTime, filePath, scanner);
+    Thread alarmThread = new Thread(alarmClock);
+    alarmThread.start();
 }

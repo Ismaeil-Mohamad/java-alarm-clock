@@ -1,36 +1,60 @@
-import java.time.LocalDate;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalTime;
+import java.util.Scanner;
 
 public class AlarmClock implements Runnable {
-
     private final LocalTime alarmTime;
+    private final String filePath;
+    private final Scanner scanner;
 
-    public AlarmClock(LocalTime alarmTime) {
+    public AlarmClock(LocalTime alarmTime, String filePath, Scanner scanner) {
         this.alarmTime = alarmTime;
+        this.filePath = filePath;
+        this.scanner = scanner;
     }
 
     @Override
     public void run() {
 
-     while ( LocalTime.now().isBefore(alarmTime) ){
-         try {
-             Thread.sleep(1000);
+        while (LocalTime.now().isBefore(alarmTime)) {
+            try {
+                Thread.sleep(1000);
 
-             LocalTime now = LocalTime.now();
+                LocalTime now = LocalTime.now();
+                System.out.printf("\r%02d:%02d:%02d",
+                        now.getHour(),
+                        now.getMinute(),
+                        now.getSecond());
 
-             int hours = now.getHour();
-             int minutes =now.getMinute();
-             int seconds = now.getSecond();
+            } catch (InterruptedException e) {
+                System.out.println(" Thread was interrupted");
+            }
+        }
+        System.out.println();
+        playSound(filePath);
+    }
 
+    private void playSound(String filePath) {
+        File audioFile = new File(filePath);
+        try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile)) {
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
 
-             System.out.printf("\r%02d:%02d:%02d",
-                     now.getHour() ,
-                     now.getMinute() ,
-                     now.getSecond());
+            System.out.println("Press Enter to stop the alarm ");
+            scanner.nextLine();
 
-         } catch (InterruptedException e) {
-             System.out.println(" Thread was interrupted");
-         }
-     }
+            clip.stop();
+            scanner.close();
+
+        } catch (UnsupportedAudioFileException e) {
+            System.out.println(" Audio file format is not supported");
+        } catch (LineUnavailableException e) {
+            System.out.println("Audio line is unavailable");
+        } catch (IOException e) {
+            System.out.println(" Error reading audio file ");
+        }
     }
 }
